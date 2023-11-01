@@ -3,6 +3,8 @@ const router = express.Router();
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 
+//Shortened videolist route
+//-----------------------------
 router.get("/", (_req, res) => {
   const videosJSON = fs.readFileSync("./data/videos.json");
   const videos = JSON.parse(videosJSON);
@@ -15,6 +17,8 @@ router.get("/", (_req, res) => {
   res.send(videoDataSimple);
 });
 
+//Specific video details route
+//-----------------------------
 router.get("/:videoId", (req, res) => {
   const { videoId } = req.params;
   const videosJSON = fs.readFileSync("./data/videos.json");
@@ -29,6 +33,8 @@ router.get("/:videoId", (req, res) => {
   }
 });
 
+//Video upload route
+//-----------------------------
 router.post("/upload", (req, res) => {
   res.send("made it to the server");
 
@@ -70,6 +76,24 @@ router.post("/:videoId/comments", (req, res) => {
 
   fs.writeFileSync("./data/videos.json", JSON.stringify(videos));
   res.send("Comment posted!");
+});
+
+//Delete comment route
+//-----------------------------
+
+router.delete("/:videoId/comments/:commentId", (req, res) => {
+  const videos = JSON.parse(fs.readFileSync("./data/videos.json"));
+  const foundVideo = videos.find((video) => video.id === req.params.videoId);
+  const foundComment = foundVideo.comments.find(
+    (comment) => comment.id === req.params.commentId
+  );
+
+  foundVideo.comments = foundVideo.comments.filter(
+    (comment) => comment.id !== foundComment.id
+  );
+
+  fs.writeFileSync("./data/videos.json", JSON.stringify(videos));
+  res.send("Made it to delete");
 });
 
 module.exports = router;
