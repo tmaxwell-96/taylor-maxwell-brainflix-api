@@ -44,12 +44,32 @@ router.post("/upload", (req, res) => {
     likes: "0",
     duration: "4:01",
     video: "https://project-2-api.herokuapp.com/stream",
-    timestamp: new Date(),
+    timestamp: Date.now(),
     comments: [],
   };
 
   videos.push(newVideo);
   fs.writeFileSync("./data/videos.json", JSON.stringify(videos));
+});
+
+//Post comment route
+//-----------------------------
+
+router.post("/:videoId/comments", (req, res) => {
+  const videos = JSON.parse(fs.readFileSync("./data/videos.json"));
+
+  const newComment = {
+    name: req.body.name,
+    comment: req.body.comment,
+    id: uuidv4(),
+    timestamp: Date.now(),
+    likes: 0,
+  };
+  const foundVideo = videos.find((video) => video.id === req.params.videoId);
+  foundVideo.comments.push(newComment);
+
+  fs.writeFileSync("./data/videos.json", JSON.stringify(videos));
+  res.send("Comment posted!");
 });
 
 module.exports = router;
