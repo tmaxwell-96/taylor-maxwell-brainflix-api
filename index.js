@@ -8,7 +8,7 @@ PORT = 8080;
 //Middleware
 //-----------------------------
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static("public/images"));
 app.use(cors());
 
 //Routes

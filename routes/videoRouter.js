@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
+const { v4: uuidv4 } = require("uuid");
 
 router.get("/", (_req, res) => {
   const videosJSON = fs.readFileSync("./data/videos.json");
@@ -26,6 +27,29 @@ router.get("/:videoId", (req, res) => {
   } else {
     res.status(400).send("That ID Doesn't Correspond to a Video");
   }
+});
+
+router.post("/upload", (req, res) => {
+  res.send("made it to the server");
+
+  const videos = JSON.parse(fs.readFileSync("./data/videos.json"));
+
+  const newVideo = {
+    title: req.body.title,
+    description: req.body.description,
+    id: uuidv4(),
+    channel: "Red Cow",
+    image: "skiing.jpg",
+    views: "0",
+    likes: "0",
+    duration: "4:01",
+    video: "https://project-2-api.herokuapp.com/stream",
+    timestamp: new Date(),
+    comments: [],
+  };
+
+  videos.push(newVideo);
+  fs.writeFileSync("./data/videos.json", JSON.stringify(videos));
 });
 
 module.exports = router;
