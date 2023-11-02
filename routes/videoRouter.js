@@ -96,4 +96,18 @@ router.delete("/:videoId/comments/:commentId", (req, res) => {
   res.send("Made it to delete");
 });
 
+//Like comment route
+//-----------------------------
+
+router.put("/:videoId/comments/:commentId", (req, res) => {
+  const videos = JSON.parse(fs.readFileSync("./data/videos.json"));
+  const foundVideo = videos.find((video) => video.id === req.params.videoId);
+  const foundComment = foundVideo.comments.find(
+    (comment) => comment.id === req.params.commentId
+  );
+  foundComment.likes = foundComment.likes + 1;
+  fs.writeFileSync("./data/videos.json", JSON.stringify(videos));
+  res.send("made it to likes");
+});
+
 module.exports = router;
