@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(express.static("public/images"));
 app.use(cors());
 
-//Routes
+//Routes to videos
 //-----------------------------
 app.use("/videos", videoRouter);
 
