@@ -6,12 +6,10 @@ const videoRouter = require("./routes/videoRouter");
 
 const { PORT } = process.env;
 
-// PORT = 8080;
-
 //Middleware
 //-----------------------------
 app.use(express.json());
-app.use(express.static("public/images"));
+app.use(express.static("public"));
 app.use(cors());
 
 //Routes to videos

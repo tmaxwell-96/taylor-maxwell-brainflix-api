@@ -6,8 +6,7 @@ const { v4: uuidv4 } = require("uuid");
 //Shortened videolist route
 //-----------------------------
 router.get("/", (_req, res) => {
-  const videosJSON = fs.readFileSync("./data/videos.json");
-  const videos = JSON.parse(videosJSON);
+  const videos = JSON.parse(fs.readFileSync("./data/videos.json"));
   const videoDataSimple = videos.map((video) => ({
     id: video.id,
     title: video.title,
@@ -21,8 +20,7 @@ router.get("/", (_req, res) => {
 //-----------------------------
 router.get("/:videoId", (req, res) => {
   const { videoId } = req.params;
-  const videosJSON = fs.readFileSync("./data/videos.json");
-  const videos = JSON.parse(videosJSON);
+  const videos = JSON.parse(fs.readFileSync("./data/videos.json"));
 
   const foundVideo = videos.find((video) => video.id === videoId);
 
@@ -54,8 +52,12 @@ router.post("/upload", (req, res) => {
     comments: [],
   };
 
-  videos.push(newVideo);
-  fs.writeFileSync("./data/videos.json", JSON.stringify(videos));
+  if (newVideo) {
+    videos.push(newVideo);
+    fs.writeFileSync("./data/videos.json", JSON.stringify(videos));
+  } else {
+    res.status(400).send(`Expecting "title" and "description`);
+  }
 });
 
 //Post comment route
@@ -71,11 +73,16 @@ router.post("/:videoId/comments", (req, res) => {
     timestamp: Date.now(),
     likes: 0,
   };
-  const foundVideo = videos.find((video) => video.id === req.params.videoId);
-  foundVideo.comments.push(newComment);
 
-  fs.writeFileSync("./data/videos.json", JSON.stringify(videos));
-  res.send("Comment posted!");
+  if (newComment) {
+    const foundVideo = videos.find((video) => video.id === req.params.videoId);
+    foundVideo.comments.push(newComment);
+
+    fs.writeFileSync("./data/videos.json", JSON.stringify(videos));
+    res.send("Comment posted");
+  } else {
+    res.status(400).send(`Expecting "name" and "comment`);
+  }
 });
 
 //Delete comment route
@@ -91,9 +98,12 @@ router.delete("/:videoId/comments/:commentId", (req, res) => {
   foundVideo.comments = foundVideo.comments.filter(
     (comment) => comment.id !== foundComment.id
   );
-
-  fs.writeFileSync("./data/videos.json", JSON.stringify(videos));
-  res.send("Made it to delete");
+  if (foundVideo) {
+    fs.writeFileSync("./data/videos.json", JSON.stringify(videos));
+    res.send("Comment Deleted");
+  } else {
+    res.status(400).send(`Internal error, we apologize for the confusion`);
+  }
 });
 
 //Like comment route
@@ -105,9 +115,13 @@ router.put("/:videoId/comments/:commentId", (req, res) => {
   const foundComment = foundVideo.comments.find(
     (comment) => comment.id === req.params.commentId
   );
-  foundComment.likes = foundComment.likes + 1;
-  fs.writeFileSync("./data/videos.json", JSON.stringify(videos));
-  res.send("made it to likes");
+  if (foundVideo) {
+    foundComment.likes = foundComment.likes + 1;
+    fs.writeFileSync("./data/videos.json", JSON.stringify(videos));
+    res.send("Comment liked");
+  } else {
+    res.status(400).send(`Internal error, we apologize for the confusion`);
+  }
 });
 
 module.exports = router;
